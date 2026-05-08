@@ -1,122 +1,110 @@
 # AGENTS.md
 
-Canonical, vendor-neutral contract for any coding agent working in `playforge` (Claude, Codex, Gemini, others). Vendor adapters under `.claude/`, `.gemini/`, etc. are thin wrappers; this file is the source of truth.
+This is the canonical operational contract for AI work in `playforge`. All AI tools operating in this repository must follow this file.
 
-## Project Context
+This is a multi-tool / AI-agnostic project. Tool-specific entry files (`.claude/CLAUDE.md`) are thin adapters that point here. On any conflict, this file wins.
 
-- TypeScript + Playwright Component-DSL framework
-- Framework core: `framework/`
-- Assertion helpers: `assertions/`
-- App model: `pages/` with reusable components under `pages/components/`
-- Tests: `tests/ui/`, `tests/framework/`, `tests/unit/`
-- Lint rules: `eslint-plugin-xframework/`
-- Docs: `docs/` (conventions, guides, architecture, plans, reviews, migration, cases)
+## Project In One Line
 
-## Core Rules
+`playforge` is a strict TypeScript + Playwright Component-DSL testing framework. The Component-DSL — `xPage`, `xComponent`, `xLocator`, and the assertion helpers — is the project's authoring API. Tests, pages, and components must use it; raw Playwright primitives are reserved for framework internals.
 
-- Read relevant code and docs before changing behavior.
-- Preserve the migration plan's locked decisions unless the task explicitly changes them.
-- `xPage` and `xComponent` are separate abstractions. Pages never extend components.
-- Tests do not call raw `page.goto`, `page.locator`, or `page.getByRole`; they go through pages/components.
-- Prefer assertion helpers from `assertions/` over raw `expect(...)` when a helper exists.
-- Use `xLogger` and helper boundaries instead of ad hoc `console.log`.
-- Update docs when public usage, workflow, or extension points change.
-- Keep TypeScript strict; never weaken types to push code through.
-- Do not swallow exceptions silently.
-- Do not mix unrelated cleanup into task work.
+## Authoritative Sources
 
-Detailed page/component/test conventions live in `docs/conventions/` and the relevant skills — do not restate them here.
+Read on demand:
 
-## Task Classification
+- Project profile: `.ai/docs/project_specification.md`
+- Architecture overview: `docs/architecture/overview.md`
+- DSL authoring guide: `docs/guides/authoring-with-the-dsl.md`
+- Page object conventions: `docs/conventions/page-objects.md`
+- Component conventions: `docs/conventions/components.md`
+- Migration guides: `docs/migration/`
+- Source layout: `framework/`, `pages/`, `assertions/`, `eslint-plugin-xframework/`, `tests/`
+- CI: `.github/workflows/ci.yml`
+- Environment and runtime: `.env.example`, `playwright.config.ts`, `package.json`
 
-Every task maps to exactly one tier. The `manager` skill picks the tier; this table defines it.
+`docs/custom_playwright_architecture_v2.md` is background only and does not override current implementation or focused docs.
 
-| Tier | Criteria | Workflow |
+## Routing Gate
+
+Before doing any work, classify the task:
+
+1. **Trivial** — single-file edit, obvious intent, no behavior change beyond the touched line, no new validation gate beyond running existing checks. Proceed directly. State the classification.
+2. **Non-trivial** — anything else: feature implementation, code review, refactor, multi-file change, behavior change, framework-level change, anything routed. **Stop. Load `manager` and let it produce a routing decision before any implementation begins.**
+3. **Unsure** — treat as non-trivial.
+
+If the task requires choosing between meaningful options before implementation can begin (open design, profile clarification, ambiguous user request with material trade-offs), stop and load `brainstorm` before `manager`.
+
+For non-trivial work, `report-completion` is mandatory and is appended by `manager`. Pipelines and execution skills must not restate that rule.
+
+## Capability Registry
+
+Shared capabilities under `.ai/`:
+
+| Capability | Location | Purpose |
 |---|---|---|
-| **T0** trivial + low risk | single file or small related set; docs/naming/formatting; narrow low-risk fix; no framework core, fixture, config, ESLint, or DSL boundary change | `.claude/workflows/trivial.md` |
-| **T1** non-trivial + low/medium risk | feature or refactor in one area (pages, components, tests, or isolated helper); no framework core or shared contract change | `.claude/workflows/standard.md` |
-| **T2** non-trivial + high risk | touches `framework/core/**`, `assertions/soft.ts`, fixtures, reporting, Playwright config, ESLint rules, or any shared DSL contract | `.claude/workflows/high-risk.md` |
-| **T3** cross-cutting / architectural | multi-area (framework + pages/tests + docs), public-contract change, migration-level | `.claude/workflows/cross-cutting.md` |
+| `manager` | `.ai/skills/manager/SKILL.md` | Centralized routing for non-trivial work |
+| `report-completion` | `.ai/skills/report-completion/SKILL.md` | Closure report for non-trivial work |
+| `brainstorm` | `.ai/skills/brainstorm/SKILL.md` | Structured discussion for open design or trade-off decisions |
+| `implement-feature` | `.ai/skills/implement-feature/SKILL.md` | Additive code and test execution |
+| `refactor-code` | `.ai/skills/refactor-code/SKILL.md` | Behavior-preserving restructuring |
+| `review-code` | `.ai/skills/review-code/SKILL.md` | Read-only review execution |
 
-### Risk Signals
+Pipelines for repeated multi-step workflows:
 
-High-risk markers (escalate at least to T2):
-
-- Locator logging, name binding, soft assertions, retries, reporting, or Playwright execution behavior
-- Public method, config key, fixture contract, or extension-point change
-- New abstraction or extension point in shared code
-
-## Orchestration Contract
-
-- The `manager` skill decides *which* workflow runs. Workflows decide step order. Skills own procedures. Agents own role charters.
-- No file restates logic owned by another layer.
-- Subagents (`architect`, `code-writer`, `code-reviewer`, `writer`) are used only when the selected workflow calls for them.
-- Re-review loop triggers on CRITICAL or HIGH reviewer findings. MEDIUM findings are reported, not looped.
-
-## Skill Compliance
-
-- If a task matches a skill description, the skill is binding procedure, not reference.
-- Before substantial work, declare the skills that apply and any expected skips.
-- Before declaring done, state which selected skill stages were completed, skipped, or blocked.
-
-## Validation
-
-- Use the `validate` skill. It owns the command matrix.
-- Prefer the smallest meaningful verification first.
-- If a step cannot run, say exactly what was skipped and why.
-
-## Issue Tracking
-
-- All issue-tracker procedure lives in the `work-with-beads` skill. Do not restate bd commands or rules elsewhere.
-- Non-trivial work (T1+) is tracked in bd. T0 work is not.
-
-## Skills Index
-
-Scan `.claude/skills/**/SKILL.md` at session start and index the `name` + `description` frontmatter. Load a skill body only when the task matches its description.
-
-| Skill | Description |
+| Pipeline | Location |
 |---|---|
-| `manager` | Classify task tier and select the workflow |
-| `playwright-cli` | Automate browser interactions for discovery, DOM capture, and state management |
-| `explain-code` | Explain code with diagrams and concrete flow |
-| `refactor` | Rules and TDD practice for safely refactoring shared framework code |
-| `review-automation-code` | Review Playwright DSL usage, page/component design, and test hygiene |
-| `task-ready` | Task completion checklist |
-| `validate` | Select and run the right verification steps based on what changed |
-| `work-with-beads` | Project rules for tracking work in the bd issue tracker |
-| `work-with-docs` | Rules for creating and maintaining docs, plans, guides, and ADRs |
-| `work-with-git` | Branch strategy and git safety rules |
-| `write-test` | Rules for writing and placing unit and UI tests |
+| `feature-implementation` | `.ai/pipelines/feature-implementation.md` |
+| `code-review` | `.ai/pipelines/code-review.md` |
+| `code-refactoring` | `.ai/pipelines/code-refactoring.md` |
 
-## Workflows Index
+Agents for specialized roles:
 
-The `manager` skill picks one of the four tier workflows. Tier workflows may delegate to a focused sub-workflow.
+| Agent | Location | Purpose |
+|---|---|---|
+| `instruction-evaluator` | `.ai/agents/instruction-evaluator/AGENT.md` | Isolated review of instruction artifacts; use in place of `review-code` when reviewing skills, agents, pipelines, conventions, or adapters |
 
-| Workflow | When |
-|---|---|
-| `.claude/workflows/trivial.md` | T0 |
-| `.claude/workflows/standard.md` | T1 |
-| `.claude/workflows/high-risk.md` | T2 |
-| `.claude/workflows/cross-cutting.md` | T3 |
-| `.claude/workflows/author-test.md` | New spec from a case (called from T1) |
-| `.claude/workflows/repair-test.md` | Failing or flaky spec (called from T1) |
+Shared conventions referenced by capabilities:
 
-## Subagents Index
+- Code and DSL boundaries: `.ai/conventions/code.md`
+- Verification gate: `.ai/conventions/verification.md`
 
-Use only when the selected workflow calls for them.
+## Constraints
 
-| Agent | Role |
-|---|---|
-| `architect` | Produces an implementation plan file. Required for T2 and T3. |
-| `code-writer` | Implements a plan step by step and owns validation. |
-| `code-reviewer` | Reviews the real diff and reports severity-grouped findings. |
-| `writer` | Updates `docs/` when public usage, workflow, or architecture changed. |
+Headline rules only. Conventions and docs hold the full detail and are the source of truth.
 
-## Convention References
+- DSL boundaries (no `page.goto`, `page.locator`, or `page.getByRole` in tests or components; components hold no raw `Page`) — see `.ai/conventions/code.md`.
+- Assertion helpers preferred over raw `expect`; use raw `expect` only when no helper fits — see `.ai/conventions/code.md`.
+- Test placement and tagging (`@ui` for browser specs, `@unit` for unit and framework specs) — see `.ai/conventions/code.md`.
+- Verification before handoff for code changes — see `.ai/conventions/verification.md`. Documentation-only changes skip local execution unless they affect commands or executable config.
+- Reporting stays on Playwright HTML + Allure; no custom reporter — see `.ai/conventions/code.md`.
+- ESLint guardrail changes under `eslint-plugin-xframework/` are risky — see "Risky Changes Require User Consent" below.
 
-Load only when the task touches the matching area.
+## Risky Changes Require User Consent
 
-| Reference | Used by |
-|---|---|
-| `docs/conventions/page-objects.md` | anyone creating or editing `pages/**` |
-| `docs/conventions/components.md` | anyone creating or editing `pages/components/**` |
+Stop and ask before:
+
+- moving capabilities to a new directory
+- splitting a monolithic file
+- merging or deleting duplicated artifacts
+- renaming or replacing existing capabilities
+- bypassing the Component-DSL with raw Playwright in tests
+- editing CI configuration or `package.json` scripts
+- modifying or relaxing rules in `eslint-plugin-xframework/`
+- touching tool-config files outside immediate scope (`.gemini/settings.json`, `.codex/`)
+
+When asking, name the change, the reason, and the safe target state.
+
+## Tool Adapters In Scope
+
+- Claude Code reads this file via `.claude/CLAUDE.md` (thin adapter that imports this file).
+- Codex CLI reads this file natively as `AGENTS.md`.
+
+Other tools are not in scope today. `.gemini/settings.json` references `AGENTS.md`; if Gemini is later activated, generate a thin adapter rather than making `AGENTS.md` Gemini-specific.
+
+## Protocol Mapping
+
+For framework reviewers:
+
+- `manager` ↔ canonical `manager` protocol
+- `report-completion` ↔ canonical `task_complete` protocol (renamed project-locally; mandatory behavior preserved)
+- `brainstorm` ↔ canonical `brainstorm` protocol

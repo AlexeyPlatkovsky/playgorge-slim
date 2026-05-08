@@ -34,7 +34,7 @@ Before doing any work, classify the task:
 
 If the task requires choosing between meaningful options before implementation can begin (open design, profile clarification, ambiguous user request with material trade-offs), stop and load `brainstorm` before `manager`.
 
-For non-trivial work, `report-completion` is mandatory and is appended by `manager`. Pipelines and execution skills must not restate that rule.
+For non-trivial implementation and refactoring work, `bead-work` is the mandatory first step — find or propose a tracking bead before any code changes begin. `report-completion` is the mandatory final step, appended by `manager`. Pipelines sequence these steps without restating the policy rationale.
 
 ## Capability Registry
 
@@ -48,6 +48,7 @@ Shared capabilities under `.ai/`:
 | `implement-feature` | `.ai/skills/implement-feature/SKILL.md` | Additive code and test execution |
 | `refactor-code` | `.ai/skills/refactor-code/SKILL.md` | Behavior-preserving restructuring |
 | `review-code` | `.ai/skills/review-code/SKILL.md` | Read-only review execution |
+| `bead-work` | `.ai/skills/bead-work/SKILL.md` | Issue tracking gate: find or propose a bead before significant work begins |
 
 Pipelines for repeated multi-step workflows:
 

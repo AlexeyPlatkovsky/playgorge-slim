@@ -1,6 +1,6 @@
 # Code Convention
 
-Mandatory shared standard for code authoring in playforge. Referenced by `feature-implementation`, `code-refactoring`, and `code-review`.
+Mandatory shared standard for code authoring in playforge. Referenced by `implement-feature`, `refactor-code`, and `review-code`.
 
 This file states the rules. Detailed authoring patterns live in the project docs and are referenced below; this file does not restate those patterns.
 

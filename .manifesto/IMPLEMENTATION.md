@@ -1,5 +1,5 @@
 ---
-version: 2.0.0
+version: 2.1.1
 project: agent-manifest
 url: https://github.com/AlexeyPlatkovsky/agent-manifest/blob/main/IMPLEMENTATION.md
 ---
@@ -16,14 +16,16 @@ This document defines how the agent-manifest framework realizes the values and p
 
 # Framework Sources
 
-The framework has four source types:
+The framework has five source types:
 
 - `MANIFEST.md` defines values and principles.
 - `IMPLEMENTATION.md` defines framework mechanics.
 - `NN_name.md` files define framework stages.
 - `protocols/*.md` define framework protocols used by stages.
+- `agents/*.md`, excluding `agents/_README.md`, define framework agent templates used by generated landscapes.
 
 Framework protocols are not project runtime files. They are inputs for generating or reviewing project-local capabilities.
+Framework agent templates are copied into project-local instruction systems when their metadata applies.
 
 ---
 
@@ -43,6 +45,30 @@ Stage rules:
 - stages 01-04 must stop if `.ai/docs/project_specification.md` is missing
 - stages apply `MANIFEST.md`, `IMPLEMENTATION.md`, framework protocols, and the project specification together
 - stage files are not project runtime artifacts
+
+## Stage Standards
+
+These standards apply to every stage. Stages declare what is stage-specific without restating these rules.
+
+### Context Required
+
+Every stage must declare a "Context Required" list naming the files it needs.
+
+If any listed file is missing, the stage must stop and ask the user to provide it.
+
+If `.ai/docs/project_specification.md` is missing, stages 01-04 must stop and require `00_project_profile.md` first.
+
+### Brainstorming
+
+When a stage uses brainstorming, it must cite `protocols/brainstorm.md` and follow it exactly. Stages must not restate brainstorm protocol rules. A stage may name only the stage-specific scope of the conversation and the topics in scope.
+
+### Composition Anchor
+
+When a stage enters a composition, implementation, or fix-application phase, it must apply this document's §Project Landscape (including §Layer Purity), §Principle Implementation, §Framework Protocol Contract, §Framework Agent Template Contract, and §Capability Triggers. Stage-specific composition rules supplement, not replace, these anchors.
+
+### Phase Discipline
+
+Stages must not modify files during inventory, audit, discovery, discussion, brainstorm, clarification, reconciliation, or proposal phases. File modifications belong only in the stage's composition or implementation phase, and only after explicit user approval when the stage requires it.
 
 ---
 
@@ -131,8 +157,11 @@ Agents are specialized roles used only when context isolation or specialized rea
 
 Rules:
 - do not create a default agent layer without evidence of need
+- mandatory framework agent templates with a present `requires_when` trigger are evidence of need
 - keep agent responsibilities distinct from skills and pipelines
 - use agents for isolation, specialization, or parallel responsibility, not decoration
+- copy mandatory framework agent templates into every generated landscape where their trigger applies
+- preserve the template's responsibility and output contract when adapting to a tool-specific agent format
 
 ## Conventions
 
@@ -160,6 +189,18 @@ Rules:
 - keep docs on demand, not always loaded
 - do not use docs to enforce behavior that belongs in the root contract, a skill, a pipeline, an agent, or a convention
 
+## Layer Purity
+
+Every artifact must stay inside the responsibility boundary of its layer.
+
+Tests:
+- pipeline body = ordered references to skills, agents, or single trivial commands; no embedded execution procedure, no "how to" prose, no standards, no DSL or coding rules, no checklists that belong in a skill or convention
+- skill body = one atomic execution capability; may cite conventions and reference docs, but does not sequence sibling skills and does not restate standards already owned by a convention
+- convention body = shared standards only; no classification, routing, sequencing, or execution; no task procedure
+- root contract / manager body = routing and gates only; no execution bodies
+
+If a layer is about to absorb content that belongs elsewhere, place the content in the correct layer first. A pipeline whose body could be deleted without losing execution detail because the detail lives only there is a skill mislabeled as a pipeline.
+
 ---
 
 # Principle Implementation
@@ -176,7 +217,7 @@ Implementation:
 
 The 150-line target remains a strong guideline for generated project instruction files, not a hard cap. Do not sacrifice clarity, correctness, or single responsibility just to satisfy the target.
 
-### 2. Build For Now, Not For Later
+### 2. Earn Complexity
 
 Implementation:
 - create only artifacts the current project actually needs
@@ -184,8 +225,6 @@ Implementation:
 - preserve existing naming when it is already coherent
 - add configurability only when the current project requires it
 - generalize only after a repeated pattern exists
-
-### 3. Escalate Only When Justified
 
 Classify work by complexity and risk.
 
@@ -209,7 +248,7 @@ Translate this matrix into mandatory gate language in the root contract. Do not 
 
 ## Authority And Structure
 
-### 4. Give Every Artifact One Job
+### 3. One Artifact, One Job
 
 Implementation:
 - root contract: policy and routing gates
@@ -221,9 +260,7 @@ Implementation:
 
 If a file grows because it is doing too many jobs, split it rather than expanding it indefinitely.
 
-### 5. Separate Policy From Execution
-
-Implementation:
+Decision and execution boundaries:
 - put classification, routing gates, constraints, and required outputs in the root contract
 - put task procedures in skills
 - put sequencing in pipelines
@@ -232,15 +269,13 @@ Implementation:
 
 Execution skills must not contain manager handoff text, stage metadata, or routing to other skills.
 
-### 6. Keep One Source Of Truth
+### 4. One Owner Per Concern
 
 Implementation:
 - centralize each behavioral requirement in the layer responsible for it
 - reference conventions and docs instead of copying their text into skills or agents
 - derive project capabilities from framework protocol metadata, not from memorized protocol names
 - do not let project skills depend on framework protocol files or framework-only paths at runtime
-
-### 7. Respect Existing Authority
 
 If an existing project capability exactly satisfies a required capability, reuse it.
 
@@ -263,7 +298,7 @@ If the naming convention is unclear or conflicts with framework defaults, ask th
 
 ## Control And Safety
 
-### 8. Make Behavior Explicit
+### 5. Make Behavior Explicit
 
 Before non-trivial implementation:
 - state assumptions explicitly
@@ -273,9 +308,9 @@ Before non-trivial implementation:
 
 Avoid descriptive routing without a stop gate, implied validation, and implied completion behavior.
 
-### 9. Gates Must Actually Gate
-
-For non-trivial tasks, the root contract must use imperative blocking language.
+Gate behavior:
+- for non-trivial tasks, the root contract must use imperative blocking language
+- routing gates must appear before the capability registry
 
 Compliant pattern:
 - classify the task first
@@ -283,16 +318,15 @@ Compliant pattern:
 - if non-trivial: stop, load the concrete routing capability, and do not implement until routing resolves
 - if unsure: treat as non-trivial
 
-Routing gates must appear before the capability registry.
-
-Validation is mandatory for non-trivial work:
+Validation is mandatory for non-trivial routed work:
 - every non-trivial pipeline must include at least one explicit validation step
 - stronger review loops apply only for higher-risk work
 - validation should be automated and repeatable where possible
-- `task-complete` is the required closure skill for non-trivial work
+- validation is a required check unless a project explicitly creates a concrete validation skill, pipeline step, or convention
+- `task-complete` is the required closure skill for non-trivial routed work
 - `task-complete` enforcement should be centralized in the routing layer, not repeated across execution skills
 
-### 10. Ask Before You Cut
+### 6. Ask Before You Cut
 
 If compliance or implementation requires a risky change, stop and ask the user before changing it.
 
@@ -315,8 +349,13 @@ When asking, explain:
 Protocols in `protocols/` are canonical framework inputs. They are not project runtime files.
 
 Every protocol must declare structured frontmatter:
+- `version`
+- `project`
+- `url`
 - `implementation: mandatory | optional`
 - `requires_when: [...]`
+
+`requires_when` entries are human-readable trigger phrases. Write them with spaces rather than slug-style underscores.
 
 Protocol frontmatter is authoritative for derivation and review. Prompt logic must not infer applicability from prose when metadata is present.
 
@@ -336,13 +375,42 @@ Rules:
 - protocols marked `implementation: mandatory` define required project capabilities when their trigger is present
 - protocols marked `implementation: optional` may be implemented only when their trigger is present and the project genuinely needs them
 
-Generated project skills must:
+Generated project capabilities derived from protocols must:
 - be standalone project artifacts
 - include the protocol's mandatory behavior
 - include minimal project-specific adaptation
 - avoid references to framework files, protocol files, or framework-only paths
 
-For multi-tool or AI-agnostic projects, generated project skills must use the framework-standard skill format defined above.
+When a protocol derives a skill in a multi-tool or AI-agnostic project, use the framework-standard skill format defined above. When a protocol derives a manager-equivalent routing capability, keep it in the routing layer rather than formatting it as a normal execution skill.
+
+---
+
+# Framework Agent Template Contract
+
+Agent templates in `agents/`, excluding `agents/_README.md`, are canonical framework inputs for specialized project-local agents.
+
+Every agent template must declare structured frontmatter:
+- `version`
+- `project`
+- `url`
+- `name`
+- `description`
+- `implementation: mandatory | optional`
+- `requires_when: [...]`
+
+`requires_when` entries are human-readable trigger phrases. Write them the same way as protocol triggers, with spaces rather than slug-style underscores.
+
+Agent template frontmatter is authoritative for derivation and review. Prompt logic must not infer applicability from prose when metadata is present.
+
+Rules:
+- templates marked `implementation: mandatory` define required project-local agents when their `requires_when` trigger is present
+- templates marked `implementation: optional` may be copied only when their trigger is present and the project genuinely needs them
+- `any AI landscape` is the trigger for agents that must be included in every generated project instruction system
+- copied agents must remain on demand; root contracts and adapters route to them but do not inline their full instructions
+- copied mandatory agents must preserve the template content verbatim when the generated landscape ships the same authority files the template references
+- if the generated landscape does not ship the framework authority files, adapt those references to equivalent project-local authority while preserving the template's role, constraints, and output contract
+- target-tool formatting may be adapted only as much as needed to make the agent usable in that AI landscape
+- generated project agents must avoid references to framework files, template files, or framework-only paths unless those files are intentionally shipped as project-local authority
 
 ---
 
@@ -351,9 +419,10 @@ For multi-tool or AI-agnostic projects, generated project skills must use the fr
 Prefer the smallest coherent system that satisfies the triggers actually present in the project profile and repository evidence.
 
 Use these triggers:
+- any AI landscape: instruction-evaluator agent
 - multiple AI tools or AI-agnostic portability need: root contract plus thin adapters
 - open design decisions or setup/profile clarification choices with trade-offs: brainstorming capability
-- non-trivial routed work: validation and task-complete capability
+- non-trivial routed work: explicit validation check and task-complete capability
 - routing must choose between multiple skills, pipelines, or agents: manager-equivalent capability
 - repeated multi-step workflow or repeated non-trivial task type with distinct steps: pipeline
 - repeated task type: skill

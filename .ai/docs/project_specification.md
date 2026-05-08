@@ -180,6 +180,4 @@ No external best practices were accepted during the initial project profile.
 
 ## Open Questions
 
-- The final `AGENTS.md` root contract and tool adapters have not been generated yet.
-- The exact Claude/Codex adapter file layout remains for a later instruction composition stage.
 - Gemini support may be revisited later if it becomes an immediate tool requirement.

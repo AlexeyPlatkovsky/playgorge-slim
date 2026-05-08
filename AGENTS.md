@@ -45,6 +45,9 @@ Shared capabilities under `.ai/`:
 | `manager` | `.ai/skills/manager/SKILL.md` | Centralized routing for non-trivial work |
 | `report-completion` | `.ai/skills/report-completion/SKILL.md` | Closure report for non-trivial work |
 | `brainstorm` | `.ai/skills/brainstorm/SKILL.md` | Structured discussion for open design or trade-off decisions |
+| `implement-feature` | `.ai/skills/implement-feature/SKILL.md` | Additive code and test execution |
+| `refactor-code` | `.ai/skills/refactor-code/SKILL.md` | Behavior-preserving restructuring |
+| `review-code` | `.ai/skills/review-code/SKILL.md` | Read-only review execution |
 
 Pipelines for repeated multi-step workflows:
 
@@ -54,7 +57,13 @@ Pipelines for repeated multi-step workflows:
 | `code-review` | `.ai/pipelines/code-review.md` |
 | `code-refactoring` | `.ai/pipelines/code-refactoring.md` |
 
-Shared conventions referenced by skills and pipelines:
+Agents for specialized roles:
+
+| Agent | Location | Purpose |
+|---|---|---|
+| `instruction-evaluator` | `.ai/agents/instruction-evaluator/AGENT.md` | Isolated review of instruction artifacts; use in place of `review-code` when reviewing skills, agents, pipelines, conventions, or adapters |
+
+Shared conventions referenced by capabilities:
 
 - Code and DSL boundaries: `.ai/conventions/code.md`
 - Verification gate: `.ai/conventions/verification.md`

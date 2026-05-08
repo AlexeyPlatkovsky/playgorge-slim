@@ -1,6 +1,6 @@
 # Verification Convention
 
-Mandatory shared standard for the verification trail before any code change is handed back. Referenced by `feature-implementation` and `code-refactoring`; consulted by `code-review` when evaluating whether a change carries a sufficient verification trail.
+Mandatory shared standard for the verification trail before any code change is handed back. Referenced by `implement-feature` and `refactor-code`; consulted by `review-code` when evaluating whether a change carries a sufficient verification trail.
 
 ## Required Checks For Code Changes
 

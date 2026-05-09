@@ -1,11 +1,13 @@
 import { type RouteHandler, htmlResponse } from "./fixture-server";
-import { test as base } from "./base.fixture";
+import { test as base, type BaseTestFixtures } from "./base.fixture";
 
-export interface TestFixtures {
+export interface MountHtmlFixture {
   mountHtml: (html: string, path?: string) => Promise<string>;
 }
 
-export const test = base.extend<TestFixtures>({
+export type TestFixtures = BaseTestFixtures & MountHtmlFixture;
+
+export const test = base.extend<MountHtmlFixture>({
   mountHtml: async ({ fixtureServer }, use) => {
     const routes: Record<string, RouteHandler> = {};
     const mount = (html: string, path = "/"): Promise<string> => {

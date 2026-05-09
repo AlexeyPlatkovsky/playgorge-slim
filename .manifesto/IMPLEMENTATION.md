@@ -313,6 +313,8 @@ Compliant pattern:
 - if trivial: proceed directly and state the classification
 - if non-trivial: stop, load the concrete routing capability, and do not implement until routing resolves
 - if unsure: treat as non-trivial
+- classification must be stated out loud before any file is created, edited, or deleted; a silent mental check does not satisfy the gate
+- when a conversation begins as discussion or design and the user signals to proceed ("go ahead", "do it", "implement it", or equivalent), treat that signal as a fresh routing gate trigger, not as permission to skip classification
 
 Validation is mandatory for non-trivial routed work:
 - every non-trivial pipeline must include at least one explicit validation step

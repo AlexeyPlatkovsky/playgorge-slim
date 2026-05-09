@@ -60,6 +60,10 @@ Before non-trivial work begins, the manager must explicitly classify:
 - risk
 - whether the task crosses domains or systems
 
+Classification must produce visible output — a stated classification — before any file is created, edited, or deleted. A silent internal check does not satisfy this rule.
+
+When a session begins as discussion or design and the user signals readiness to proceed ("go ahead", "do it", "implement it", "fix it", or equivalent), the manager gate fires again at that moment. The signal is not blanket permission to skip routing.
+
 If the task is actually trivial, the manager must say so and release it for direct execution.
 
 ## 3. Name the Concrete Next Capability

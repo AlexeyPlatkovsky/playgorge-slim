@@ -32,6 +32,10 @@ Before doing any work, classify the task:
 2. **Non-trivial** — anything else: feature implementation, code review, refactor, multi-file change, behavior change, framework-level change, anything routed. **Stop. Load `manager` and let it produce a routing decision before any implementation begins.**
 3. **Unsure** — treat as non-trivial.
 
+**Classification is mandatory and must be stated out loud before any file is created, edited, or deleted.** If you cannot state the classification, stop and classify first. Skipping this step silently is a protocol violation regardless of how obvious the task seems.
+
+**Discussion-to-implementation transition:** when a conversation begins as discussion or design and the user signals to proceed ("go ahead", "do it", "implement it", "fix it", or equivalent), treat that signal as a fresh routing gate trigger — not as permission to skip classification. Re-classify at the moment of the signal before touching any file.
+
 If the task requires choosing between meaningful options before implementation can begin (open design, profile clarification, ambiguous user request with material trade-offs), stop and load `brainstorm` before `manager`.
 
 For non-trivial implementation and refactoring work, `bead-work` is the mandatory first step — find or propose a tracking bead before any code changes begin. `report-completion` is the mandatory final step, appended by `manager`. Pipelines sequence these steps without restating the policy rationale.

@@ -1,38 +1,13 @@
-import { test as base } from "@playwright/test";
+import { type RouteHandler, htmlResponse } from "./fixture-server";
+import { test as base, type BaseTestFixtures } from "./base.fixture";
 
-import { xLogger } from "../core/xLogger";
-import {
-  type FixtureServerHandle,
-  type RouteHandler,
-  htmlResponse,
-  startFixtureServer
-} from "./fixture-server";
-
-export interface TestFixtures {
-  logger: typeof xLogger;
+export interface MountHtmlFixture {
   mountHtml: (html: string, path?: string) => Promise<string>;
 }
 
-export interface WorkerFixtures {
-  fixtureServer: FixtureServerHandle;
-}
+export type TestFixtures = BaseTestFixtures & MountHtmlFixture;
 
-export const test = base.extend<TestFixtures, WorkerFixtures>({
-  fixtureServer: [
-    // eslint-disable-next-line no-empty-pattern
-    async ({}, use) => {
-      const server = await startFixtureServer();
-      await use(server);
-      await server.close();
-    },
-    { scope: "worker" }
-  ],
-  // eslint-disable-next-line no-empty-pattern
-  logger: async ({}, use) => {
-    xLogger.resetForTesting();
-    await use(xLogger);
-    xLogger.resetForTesting();
-  },
+export const test = base.extend<MountHtmlFixture>({
   mountHtml: async ({ fixtureServer }, use) => {
     const routes: Record<string, RouteHandler> = {};
     const mount = (html: string, path = "/"): Promise<string> => {

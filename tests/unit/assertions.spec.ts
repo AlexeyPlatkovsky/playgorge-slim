@@ -1,4 +1,3 @@
-import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import {
@@ -12,7 +11,7 @@ import {
   currentMode,
   softGroup
 } from "../../assertions";
-import { wrapLocator, type xLocator } from "../../framework/core/xLocator";
+import { xPage } from "../../framework/core/xPage";
 
 const fixturePage = `<!doctype html>
 <html>
@@ -29,27 +28,38 @@ const fixturePage = `<!doctype html>
   </body>
 </html>`;
 
-function wrap(page: Page, selector: string, name: string): xLocator {
-  return wrapLocator(page.locator(selector), { name, selector });
+class AssertionFixturePage extends xPage {
+  readonly hidden = this.$("#hidden");
+  readonly items = this.$("#list li");
+  readonly path = "about:blank";
+  readonly primary = this.$("#primary");
+  readonly status = this.$("#status");
+  readonly title = this.$("#title");
+
+  async isOpened(): Promise<void> {
+    await assertVisible(this.title);
+  }
 }
 
 test("assertion helpers resolve against the live DOM in hard mode @ui", async ({ page }) => {
   await page.setContent(fixturePage);
+  const fixture = new AssertionFixturePage(page);
 
-  await assertVisible(wrap(page, "#title", "title"));
-  await assertTextEquals(wrap(page, "#title", "title"), "Dashboard");
-  await assertTextContains(wrap(page, "#status", "status"), "signed");
-  await assertAttributeEquals(wrap(page, "#title", "title"), "data-kind", "heading");
-  await assertEnabled(wrap(page, "#primary", "primary"));
-  await assertCount(wrap(page, "#list li", "items"), 3);
-  await assertHidden(wrap(page, "#hidden", "hidden"));
+  await assertVisible(fixture.title);
+  await assertTextEquals(fixture.title, "Dashboard");
+  await assertTextContains(fixture.status, "signed");
+  await assertAttributeEquals(fixture.title, "data-kind", "heading");
+  await assertEnabled(fixture.primary);
+  await assertCount(fixture.items, 3);
+  await assertHidden(fixture.hidden);
 });
 
 test("hard assertion failure throws immediately @ui", async ({ page }) => {
   await page.setContent(fixturePage);
+  const fixture = new AssertionFixturePage(page);
 
   await expect(async () => {
-    await assertTextEquals(wrap(page, "#title", "title"), "Not Dashboard", {
+    await assertTextEquals(fixture.title, "Not Dashboard", {
       message: "hard failure",
       timeout: 200
     });
@@ -59,6 +69,7 @@ test("hard assertion failure throws immediately @ui", async ({ page }) => {
 test("softGroup keeps executing after a failing assertion @ui", async ({ page }) => {
   test.fail();
   await page.setContent(fixturePage);
+  const fixture = new AssertionFixturePage(page);
 
   let executed = 0;
   const runOnce = async (fn: () => Promise<void>): Promise<void> => {
@@ -68,18 +79,18 @@ test("softGroup keeps executing after a failing assertion @ui", async ({ page })
 
   await softGroup("dashboard checks", async () => {
     await runOnce(() =>
-      assertTextEquals(wrap(page, "#title", "title"), "Not Dashboard", {
+      assertTextEquals(fixture.title, "Not Dashboard", {
         message: "soft-fail-1",
         timeout: 200
       })
     );
     await runOnce(() =>
-      assertTextContains(wrap(page, "#status", "status"), "signed", {
+      assertTextContains(fixture.status, "signed", {
         message: "soft-pass"
       })
     );
     await runOnce(() =>
-      assertTextEquals(wrap(page, "#status", "status"), "pending", {
+      assertTextEquals(fixture.status, "pending", {
         message: "soft-fail-2",
         timeout: 200
       })
@@ -93,12 +104,13 @@ test("softGroup body receives soft mode and restores hard mode afterwards @ui", 
   page
 }) => {
   await page.setContent(fixturePage);
+  const fixture = new AssertionFixturePage(page);
 
   expect(currentMode()).toBe("hard");
 
   await softGroup("scoped group", async () => {
     expect(currentMode()).toBe("soft");
-    await assertVisible(wrap(page, "#title", "title"));
+    await assertVisible(fixture.title);
   });
 
   expect(currentMode()).toBe("hard");

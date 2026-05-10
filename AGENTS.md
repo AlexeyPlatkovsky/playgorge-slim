@@ -40,6 +40,8 @@ If the task requires choosing between meaningful options before implementation c
 
 For non-trivial implementation and refactoring work, `bead-work` is the mandatory first step — find or propose a tracking bead before any code changes begin. `report-completion` is the mandatory final step, appended by `manager`. Pipelines sequence these steps without restating the policy rationale.
 
+Exception: routine fixes on the current branch that only restore existing validation (for example lint, typecheck, or test failures) do not require `bead-work` or `branch-setup`, provided they do not add product behavior, perform a refactor, touch risky files, or change CI/package scripts. State that the exception applies, proceed on the current branch, and still run the required verification before handoff.
+
 ## Capability Registry
 
 Shared capabilities under `.ai/`:

@@ -1,80 +1,133 @@
-# Pipeline Test System
+# AI Test System
 
-Verification suite for the `create-test-from-spec` pipeline. These scenarios are drift checks for the pipeline contract, not product work. All scenarios run with real AI agents. The only difference between modes is whether `npm run test:ui` executes in Stage 2.
+Drift-check suite for the AI capabilities in `playforge`. These scenarios verify that individual **agents** and full **pipelines** still honor their contracts. They are not product work.
 
-## Drift Check Contract
+The suite is run and judged by the `test-agents` agent (`.ai/agents/test-agents/AGENT.md`).
 
-The suite validates whether the pipeline still follows its stage contracts:
+## What This Suite Tests
 
-- Stage agents are invoked with the shared templates in `.ai/docs/templates/pipeline-stage-prompts/`, with every required input field filled explicitly.
-- Explorer produces an explicit `EXPLORER OUTPUT` block before Developer starts.
-- Developer refuses missing or incomplete Explorer input.
-- Developer records required verification in a `DEVELOPER OUTPUT` block and never hands off failing non-skipped checks.
-- Reviewer refuses missing handoff blocks, uses Explorer context, and returns the expected verdict.
-- Revision loops stop at the configured limit.
-- Generated files are disposable scenario artifacts and are cleaned after the scenario.
+Two test levels:
 
-Passing a scenario must not silently adopt generated product files into the repository. If a scenario reveals useful product work, report it separately and keep the drift-check result focused on pipeline behavior.
+- **Agent tests** — a single agent invoked in isolation, with fixtures standing in for any upstream stage. They verify one agent's input handling, refusal behavior, and output contract.
+- **Pipeline tests** — a full multi-stage sequence with real agents end to end. They verify stage sequencing, handoff propagation, revision loops, and that the generated test is functionally correct.
 
-## Modes
+Skill tests are out of scope.
 
-| Mode | AI agents | typecheck + lint | npm run test:ui |
-|---|---|---|---|
-| **Offline** | yes | yes | no |
-| **Online** | yes | yes | yes |
+## Execution Model
 
-See `run-offline.md` and `run-online.md` for invocation instructions.
+Every scenario runs as close to real as possible: real AI agents, and a live browser run (`npm run test:ui` against `automationexercise.com`) for any scenario that reaches Stage 2 implementation. There is no offline mode. Negative and behavioral scenarios that stop before implementation simply never reach a browser run — that is expected behavior, not a mode.
 
-## Workspace Rules
+## Layout
 
-Before each scenario:
+```
+.ai/tests/
+  README.md                              # this file
+  _shared/fixtures/                      # pre-baked handoff blocks shared across scenarios
+  results/                               # gitignored — timestamped run logs
+  agents/
+    explorer/        scenarios/          # isolated explorer tests (none yet — see its README)
+    developer/       scenarios/          # isolated developer tests
+    test-reviewer/   scenarios/          # isolated test-reviewer tests
+  pipelines/
+    create-test-from-spec/ scenarios/    # full-pipeline tests
+```
 
-1. Record the current worktree state with `git status --short`.
-2. Confirm the scenario's expected disposable files do not already exist unless the scenario explicitly says it mutates an existing file.
-3. If a scenario mutates an existing file, confirm that file has no pre-existing uncommitted changes.
-4. If an expected disposable file already exists from unrelated work, or an existing-file mutation target is already dirty, mark the scenario `SKIP` with the reason `dirty scenario target`.
+A **target** is any directory holding a `scenarios/` folder: `agents/developer`, `pipelines/create-test-from-spec`, and so on. `test-agents` is invoked with a list of targets.
 
-After each scenario:
+## Scenario Card Schema
 
-1. Remove only files created by the scenario.
-2. Restore only files modified by the scenario.
-3. Run `git status --short`.
-4. Compare with the pre-scenario status. The scenario fails if it leaves new or modified files not present before the scenario.
+Every scenario card is a Markdown file under a target's `scenarios/` directory. It uses a uniform core, plus one optional block for pipeline-level cards.
 
-Never clean unrelated pre-existing worktree changes.
+Each card has three parts: a **heading line**, a **metadata preamble** of bold-label lines, and a set of `##` **sections**.
 
-## Coverage
+**Heading line** — `# Scenario NN — <name>`. The `NN` number is stable and traces to the card's history; numbers need not be contiguous within a directory.
 
-| # | Scenario | Category | Offline | Online |
-|---|---|---|---|---|
-| 01 | Happy path - full pipeline, reviewer approves | Happy path | yes | yes |
-| 02 | Developer blocks on missing EXPLORER OUTPUT | Negative | yes | no |
-| 03 | Reviewer blocks on missing DEVELOPER OUTPUT | Negative | yes | no |
-| 04 | Reviewer blocks on missing EXPLORER OUTPUT | Negative | yes | no |
-| 05 | Explorer finds no existing context | Edge case | yes | yes |
-| 06 | Raw locator violation caught by ESLint | Edge case | yes | no |
-| 07 | Reviewer returns Needs revision, developer fixes | Edge case | yes | no |
-| 08 | Two failed revision cycles - pipeline escalates | Edge case | yes | no |
-| 09 | Reviewer rejects - back to Stage 1 | Negative | yes | no |
-| 10 | Search result opens product details | Online complexity | no | yes |
-| 11 | Brand filter opens product details | Online complexity | no | yes |
-| 12 | Product details subscription | Online complexity | no | yes |
+**Metadata preamble** — bold-label lines immediately under the heading:
+
+- **`Target:`** — the target directory, e.g. `agents/developer`.
+- **`Level:`** — `agent` or `pipeline`.
+- **`Fixtures:`** — fixture files injected for this scenario, or `none`.
+
+**Core sections (all cards):**
+
+- **`## Spec`** — the test specification handed to the agents.
+- **`## Steps`** — the exact run steps: which agent to invoke, with which template, and which fixtures to inject.
+- **`## Pass criterion`** — the condition that makes the scenario `PASS`.
+- **`## Cleanup`** — how to restore the worktree, and when to record `SKIP` or `FAIL`.
+- **`## Failure signals`** — what a failed run looks like (diagnostic aid).
+
+**Optional section (pipeline cards only):**
+
+- **`## Pipeline notes`** — the full stage sequence, revision-loop behavior, and loop limits.
+
+A card may also embed an **inline handoff block** inside a section (see scenario 09) when a one-off fixture is not worth promoting to a shared file.
+
+Minimal example:
+
+```markdown
+# Scenario NN — Short Name
+
+**Target:** `agents/developer`
+**Level:** agent
+**Fixtures:** `_shared/fixtures/explorer-output-valid.md`
+
+## Spec
+> One-line test specification.
+
+## Steps
+1. Invoke the developer agent with ... and the injected fixture.
+2. Evaluate the response against the pass criterion.
+
+## Pass criterion
+The condition that must hold for PASS.
+
+## Cleanup
+How to restore the worktree; when to record SKIP or FAIL.
+
+## Failure signals
+What a failed run looks like.
+```
 
 ## Fixtures
 
-Pre-baked input blocks for behavioral scenarios (02-04, 06-09). Inject these instead of running the upstream stage.
+`_shared/fixtures/` holds pre-baked handoff blocks. Inject them instead of running the upstream stage.
 
 | File | Contents |
 |---|---|
-| `fixtures/explorer-output-valid.md` | Well-formed EXPLORER OUTPUT for a products search spec |
-| `fixtures/explorer-output-no-context.md` | EXPLORER OUTPUT with no relevant files found |
-| `fixtures/developer-output-valid.md` | Well-formed DEVELOPER OUTPUT, all checks passed |
-| `fixtures/developer-output-lint-fail.md` | DEVELOPER OUTPUT with lint: failed |
+| `explorer-output-valid.md` | Well-formed EXPLORER OUTPUT for a products search spec |
+| `explorer-output-no-context.md` | EXPLORER OUTPUT with no relevant files found |
+| `developer-output-valid.md` | Well-formed DEVELOPER OUTPUT, all checks passed |
+| `developer-output-lint-fail.md` | DEVELOPER OUTPUT with `npm run lint` failed |
+
+## Running The Suite
+
+Invoke the `test-agents` agent with a list of one or more targets, for example `agents/developer` and `pipelines/create-test-from-spec`. There is no `all` shorthand — name each target.
+
+`test-agents` discovers each target's scenario cards, runs them with real agents, judges each against its pass criterion, continues past any failure, applies each card's cleanup, and writes a results log to `.ai/tests/results/<timestamp>.md` (gitignored).
 
 ## Pass / Fail
 
-A scenario passes when the **Pass criterion** in the scenario card is met. A scenario fails when the agent produces output that contradicts the expected outcome.
+A scenario passes when its `Pass criterion` is met. It fails when the observed result contradicts that criterion, or when cleanup cannot restore the pre-scenario worktree state without touching unrelated work. Record results as `PASS`, `FAIL`, or `SKIP` (with reason).
 
 Generated code that passes lint and tests is still disposable unless the user explicitly asks to keep it.
 
-Record results as: `PASS`, `FAIL`, or `SKIP` (with reason). For scenarios that write files, record cleanup status in `Notes`. Use `FAIL` if cleanup cannot restore the pre-scenario status without touching unrelated work.
+## Coverage
+
+This table is a human reference only — it is not authoritative. `test-agents` discovers scenarios by globbing each target's `scenarios/` directory, not from this list.
+
+| # | Scenario | Target | Level |
+|---|---|---|---|
+| 01 | Happy path — full pipeline, reviewer approves | `pipelines/create-test-from-spec` | pipeline |
+| 02 | Developer blocks on missing EXPLORER OUTPUT | `agents/developer` | agent |
+| 03 | Reviewer blocks on missing DEVELOPER OUTPUT | `agents/test-reviewer` | agent |
+| 04 | Reviewer blocks on missing EXPLORER OUTPUT | `agents/test-reviewer` | agent |
+| 05 | Explorer finds no existing context | `pipelines/create-test-from-spec` | pipeline |
+| 06 | Raw locator violation caught by ESLint | `agents/developer` | agent |
+| 07 | Reviewer returns Needs revision, developer fixes | `pipelines/create-test-from-spec` | pipeline |
+| 08 | Two failed revision cycles — pipeline escalates | `pipelines/create-test-from-spec` | pipeline |
+| 09 | Reviewer rejects on spec mismatch | `agents/test-reviewer` | agent |
+| 10 | Search result opens product details | `pipelines/create-test-from-spec` | pipeline |
+| 11 | Brand filter opens product details | `pipelines/create-test-from-spec` | pipeline |
+| 12 | Product details subscription | `pipelines/create-test-from-spec` | pipeline |
+
+The `explorer` agent has no isolated scenarios yet — it is exercised by the pipeline scenarios. See `agents/explorer/README.md`.

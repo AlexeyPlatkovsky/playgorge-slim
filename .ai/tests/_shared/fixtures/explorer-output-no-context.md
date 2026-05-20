@@ -1,6 +1,6 @@
 # Fixture: EXPLORER OUTPUT — No Existing Context
 
-Represents a Stage 1 output where no relevant pages, components, or tests exist for the target flow. Use this fixture in scenarios that test explorer behaviour when starting from scratch.
+Represents a Stage 1 output where no relevant pages, components, or tests exist for the target flow. Use this fixture in scenarios that need a from-scratch explorer handoff without running the explorer agent.
 
 ---
 

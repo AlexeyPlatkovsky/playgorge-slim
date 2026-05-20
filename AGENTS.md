@@ -77,10 +77,11 @@ Agents for specialized roles:
 | `explorer` | `.ai/agents/explorer/AGENT.md` | Inspects codebase before implementation; produces structured handoff for developer agent |
 | `developer` | `.ai/agents/developer/AGENT.md` | Implements a test from a specification using explorer output as mandatory context; scoped to create-test-from-spec pipeline |
 | `test-reviewer` | `.ai/agents/test-reviewer/AGENT.md` | Reviews generated test implementations for convention compliance, selector quality, and maintainability |
+| `test-agents` | `.ai/agents/test-agents/AGENT.md` | Runs and judges the AI test suite under `.ai/tests/`; executes agent-level and pipeline-level scenario cards with real agents and writes a results log |
 
-Pipeline test system:
+AI test system:
 
-- `.ai/tests/` — drift-check scenario cards, fixtures, and offline/online runners for the `create-test-from-spec` pipeline; generated scenario artifacts must be cleaned after each run; see `.ai/tests/README.md`
+- `.ai/tests/` — drift-check scenario cards for individual agents and for pipelines, organized by target under `agents/` and `pipelines/`; run and judged by the `test-agents` agent; generated scenario artifacts must be cleaned after each run; see `.ai/tests/README.md`
 
 Shared conventions referenced by capabilities:
 

@@ -1,6 +1,6 @@
 # Fixture: Valid EXPLORER OUTPUT
 
-Represents a well-formed Stage 1 output for a products search spec. Use this fixture in behavioral scenarios that require a valid EXPLORER OUTPUT block without running Stage 1.
+Represents a well-formed Stage 1 output for a products search spec. Use this fixture in scenarios that require a valid EXPLORER OUTPUT block without running the explorer agent.
 
 ---
 

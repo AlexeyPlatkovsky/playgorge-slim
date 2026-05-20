@@ -1,6 +1,6 @@
 # Fixture: Valid DEVELOPER OUTPUT
 
-Represents a well-formed Stage 2 output. All checks passed, no DSL violations, accessibility smoke skipped because `@axe-core/playwright` is not installed. Use this fixture in behavioral scenarios that require a passing DEVELOPER OUTPUT block without running Stage 2.
+Represents a well-formed Stage 2 output. All checks passed, no DSL violations, accessibility smoke skipped because `@axe-core/playwright` is not installed. Use this fixture in scenarios that require a passing DEVELOPER OUTPUT block without running the developer agent.
 
 ---
 
@@ -15,7 +15,7 @@ Changed files:
 Verification:
   npm run typecheck    — passed
   npm run lint         — passed
-  Browser verification — skipped (offline mode)
+  Browser verification — passed
 
 Accessibility smoke: skipped — package not installed
 ```

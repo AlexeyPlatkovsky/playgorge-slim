@@ -82,6 +82,7 @@ Agents for specialized roles:
 AI test system:
 
 - `.ai/tests/` — drift-check scenario cards for individual agents and for pipelines, organized by target under `agents/` and `pipelines/`; run and judged by the `test-agents` agent; generated scenario artifacts must be cleaned after each run; see `.ai/tests/README.md`
+- `.ai/test-system-kit/` — portable, project-agnostic kit for building an AI-capability test system on any project; holds the `test-system-builder` and `test-system-auditor` agents plus runner and scenario-card templates; see `.ai/test-system-kit/README.md`
 
 Shared conventions referenced by capabilities:
 

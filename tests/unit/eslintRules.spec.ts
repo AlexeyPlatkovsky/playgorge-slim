@@ -83,6 +83,31 @@ test("no-page-locator-in-components flags locator and goto @unit", () => {
   );
 });
 
+test("no-hardcoded-url flags absolute URL string literals and static template literals @unit", () => {
+  tester.run("no-hardcoded-url", mustGet("no-hardcoded-url"), {
+    valid: [
+      { code: "const url = `${env.BASE_URL}/api/create`;" },
+      { code: "const url = `/api/create`;" },
+      { code: "const base = `http://${host}:${port}`;" },
+      { code: "const msg = 'not a url';" }
+    ],
+    invalid: [
+      {
+        code: "const url = 'https://example.com/api';",
+        errors: [{ messageId: "hardcodedUrl" }]
+      },
+      {
+        code: "const url = 'http://example.com/api';",
+        errors: [{ messageId: "hardcodedUrl" }]
+      },
+      {
+        code: "const url = `https://example.com/api`;",
+        errors: [{ messageId: "hardcodedUrl" }]
+      }
+    ]
+  });
+});
+
 test("page-must-implement-is-opened flags classes that extend xPage without isOpened @unit", () => {
   tester.run(
     "page-must-implement-is-opened",

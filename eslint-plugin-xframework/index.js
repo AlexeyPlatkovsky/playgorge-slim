@@ -4,6 +4,7 @@ const noRawLocatorInTests = require("./rules/no-raw-locator-in-tests");
 const noGotoOutsidePageObjects = require("./rules/no-goto-outside-page-objects");
 const noPageLocatorInComponents = require("./rules/no-page-locator-in-components");
 const pageMustImplementIsOpened = require("./rules/page-must-implement-is-opened");
+const noHardcodedUrl = require("./rules/no-hardcoded-url");
 
 const plugin = {
   meta: {
@@ -14,7 +15,8 @@ const plugin = {
     "no-raw-locator-in-tests": noRawLocatorInTests,
     "no-goto-outside-page-objects": noGotoOutsidePageObjects,
     "no-page-locator-in-components": noPageLocatorInComponents,
-    "page-must-implement-is-opened": pageMustImplementIsOpened
+    "page-must-implement-is-opened": pageMustImplementIsOpened,
+    "no-hardcoded-url": noHardcodedUrl
   }
 };
 

@@ -13,7 +13,7 @@ const optionalString = z.preprocess(
 );
 
 const envSchema = z.object({
-  BASE_URL: z.string({ error: "BASE_URL is required. Please add it to your .env file." }).url("BASE_URL must be a valid URL."),
+  BASE_URL: z.url({ error: "BASE_URL must be a valid URL. Please add it to your .env file." }),
   HIGHLIGHT: z.enum(["0", "1"]).default("0"),
   TEST_PASSWORD: optionalString,
   TEST_USERNAME: optionalString

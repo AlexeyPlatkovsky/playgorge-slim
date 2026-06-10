@@ -64,5 +64,6 @@ The repo-local ESLint plugin enforces the most important DSL boundaries:
 - navigation stays inside page objects
 - components cannot reach for `page.locator(...)`
 - concrete pages must implement `isOpened()`
+- absolute URLs (`https?://`) are not allowed in source files; read `env.BASE_URL` from `framework/config/env` and use relative paths
 
 Run `npx eslint .` before handoff so those boundaries fail locally instead of in review.

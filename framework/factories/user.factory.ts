@@ -1,3 +1,5 @@
+import { env } from "../config/env";
+
 export interface UserData {
   name: string;
   email: string;
@@ -101,7 +103,7 @@ export async function createUser(overrides: Partial<UserData> & { seed?: number 
     zipcode: user.zipCode
   });
 
-  const response = await fetch("https://automationexercise.com/api/createAccount", {
+  const response = await fetch(`${env.BASE_URL}/api/createAccount`, {
     body: body.toString(),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     method: "POST"
@@ -117,7 +119,7 @@ export async function createUser(overrides: Partial<UserData> & { seed?: number 
 
 export async function deleteUser(email: string, password: string): Promise<void> {
   const body = new URLSearchParams({ email, password });
-  await fetch("https://automationexercise.com/api/deleteAccount", {
+  await fetch(`${env.BASE_URL}/api/deleteAccount`, {
     body: body.toString(),
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     method: "DELETE"

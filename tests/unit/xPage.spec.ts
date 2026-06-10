@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { env } from "../../framework/config/env";
 import { xPage } from "../../framework/core/xPage";
 import { createFakePage, type RecordedCall } from "./helpers/fakes";
 import { isXLocator } from "../../framework/core/xLocator";
@@ -23,7 +24,7 @@ test("xPage navigates with base url and exposes wrapped page locators @unit", as
 
   await demo.open();
 
-  expect(state.navigatedTo).toBe("https://automationexercise.com/login");
+  expect(state.navigatedTo).toBe(`${env.BASE_URL}/login`);
   expect(demo.opened).toBe(true);
   expect(isXLocator(demo.submit)).toBe(true);
   expect(demo.submit.__meta.selector).toBe("#submit");
@@ -35,7 +36,7 @@ test("xPage navigates with base url and exposes wrapped page locators @unit", as
   ]);
   expect(calls[0]).toEqual({ args: ["#submit"], method: "locator", target: "page" });
   expect(calls[3]).toEqual({
-    args: ["https://automationexercise.com/login"],
+    args: [`${env.BASE_URL}/login`],
     method: "goto",
     target: "page"
   });

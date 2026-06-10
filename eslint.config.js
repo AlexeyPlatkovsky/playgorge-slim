@@ -56,6 +56,13 @@ module.exports = tseslint.config(
     }
   },
   {
+    files: ["framework/**/*.ts", "pages/**/*.ts", "assertions/**/*.ts", "tests/**/*.ts"],
+    plugins: { xframework },
+    rules: {
+      "xframework/no-hardcoded-url": "error"
+    }
+  },
+  {
     files: ["pages/components/**/*.ts"],
     plugins: { xframework },
     rules: {

@@ -52,6 +52,7 @@ If a needed framework primitive is missing, stop and surface — adding to the f
 
 - Repo-local ESLint rules under `eslint-plugin-xframework/` enforce DSL boundaries
 - Adding, modifying, or relaxing a rule is a risky change and requires user approval per `AGENTS.md`
+- Absolute URLs (`https?://`) are not allowed in framework, pages, assertions, or test files; read the base URL from `env.BASE_URL` (`framework/config/env`) and append relative paths
 
 ## Reusing Existing Reference Flows
 

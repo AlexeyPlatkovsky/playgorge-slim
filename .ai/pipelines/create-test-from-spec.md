@@ -15,10 +15,6 @@ Do not use this pipeline for:
 - pure page object or component work without a test spec (use `framework-feature-implementation`)
 - one-line obvious test additions classified as trivial (proceed directly)
 
-## Pre-requisites
-
-This pipeline does not require `bead-work`. Skip the bead gate when routing to this pipeline.
-
 ## Execution Sequence
 
 Stages execute sequentially. Each stage must complete its output contract before the next stage starts.

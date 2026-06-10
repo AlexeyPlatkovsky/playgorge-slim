@@ -1,15 +1,15 @@
 ---
 name: branch-setup
-description: Determine whether a git branch is needed for the current task, derive its name from the confirmed bead and task type, and create it from origin/main with the correct confirmation behavior.
+description: Determine whether a git branch is needed for the current task, derive its name from the task type, and create it from origin/main with the correct confirmation behavior.
 ---
 
 # branch-setup
 
-`branch-setup` decides whether to create a git branch, derives the branch name, and creates it. It runs after `bead-work` output is available and before implementation begins.
+`branch-setup` decides whether to create a git branch, derives the branch name, and creates it.
 
 ## When To Use
 
-Run as a pipeline step after `bead-work`. Also invoked by `manager` for ad-hoc non-trivial work classified as a new feature or significant change.
+Run as a pipeline step. Also invoked by `manager` for ad-hoc non-trivial work classified as a new feature or significant change.
 
 ## Decision Rules
 
@@ -44,8 +44,7 @@ Choose the prefix from the task type:
 | CI, config, docs, tooling | `chore/` |
 
 Name format:
-- With confirmed bead: `<prefix><bead-id>-<slugified-bead-title>` → e.g. `feature/cpw-007-implement-login-assertion`
-- Without confirmed bead: `<prefix><slugified-task-description>` → e.g. `fix/login-button-broken`
+- `<prefix><slugified-task-description>` → e.g. `fix/login-button-broken`
 
 Slugify: lowercase; spaces and special characters replaced with hyphens; no leading or trailing hyphens.
 

@@ -38,9 +38,7 @@ Before doing any work, classify the task:
 
 If the task requires choosing between meaningful options before implementation can begin (open design, profile clarification, ambiguous user request with material trade-offs), stop and load `brainstorm` before `manager`.
 
-For non-trivial implementation and refactoring work, `bead-work` is the mandatory first step — find or propose a tracking bead before any code changes begin. `task-complete` is the mandatory final step, appended by `manager`. Pipelines sequence these steps without restating the policy rationale.
-
-Exception: routine fixes on the current branch that only restore existing validation (for example lint, typecheck, or test failures) do not require `bead-work` or `branch-setup`, provided they do not add product behavior, perform a refactor, touch risky files, or change CI/package scripts. State that the exception applies, proceed on the current branch, and still run the required verification before handoff.
+`task-complete` is the mandatory final step, appended by `manager`. Pipelines sequence these steps without restating the policy rationale.
 
 ## Capability Registry
 
@@ -54,8 +52,7 @@ Shared capabilities under `.ai/`:
 | `implement-feature` | `.ai/skills/implement-feature/SKILL.md` | Additive code and test execution |
 | `refactor-code` | `.ai/skills/refactor-code/SKILL.md` | Behavior-preserving restructuring |
 | `review-code` | `.ai/skills/review-code/SKILL.md` | Read-only review execution |
-| `bead-work` | `.ai/skills/bead-work/SKILL.md` | Issue tracking gate: find or propose a bead before significant work begins |
-| `branch-setup` | `.ai/skills/branch-setup/SKILL.md` | Git branch gate: decide whether a branch is needed, derive its name from the active bead, and create from `origin/main` |
+| `branch-setup` | `.ai/skills/branch-setup/SKILL.md` | Git branch gate: decide whether a branch is needed and create from `origin/main` |
 | `sync-manifesto` | `.ai/skills/sync-manifesto/SKILL.md` | Ensure `.manifesto/` exists and matches the latest agent-manifesto release; downloads and replaces if versions differ |
 | `playwright-cli` | `.ai/skills/playwright-cli/SKILL.md` | Live browser exploration with Playwright Agent CLI for Explorer when repository evidence is insufficient |
 | `documentation-maintenance` | `.ai/skills/documentation-maintenance/SKILL.md` | Update project docs after changes that affect behavior, interfaces, commands, architecture, or domain facts; runs before `task-complete` |

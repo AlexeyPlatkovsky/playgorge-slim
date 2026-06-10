@@ -17,9 +17,6 @@ allure-report/
 .playwright/snapshots/
 auth.json
 
-# Beads
-.beads/
-
 # AI-generated local docs
 docs/plans/
 
@@ -49,11 +46,6 @@ pnpm-debug.log*
 # Temp
 tmp/
 tmp*/
-
-# Beads / Dolt files (added by bd init)
-.dolt/
-*.db
-.beads-credential-key
 
 # AI
 .claude/settings.local.json

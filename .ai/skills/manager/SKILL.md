@@ -64,7 +64,7 @@ Available pipelines for non-trivial routed work:
 
 The manager selects a pipeline and hands off. Stage orchestration (explorer → developer → reviewer) lives inside the pipeline, not in the manager. The manager must not reproduce or re-describe the pipeline's internal sequence.
 
-For non-trivial work that none of those fit (e.g., bug investigation, migration, CI work, doc change with executable impact), describe an ad-hoc capability sequence and end it with `task-complete`. When the ad-hoc work is a new feature or significant change (not a trivial task or ongoing fix), include `.ai/skills/branch-setup/SKILL.md` after `bead-work` and before any implementation step begins.
+For non-trivial work that none of those fit (e.g., bug investigation, migration, CI work, doc change with executable impact), describe an ad-hoc capability sequence and end it with `task-complete`. When the ad-hoc work is a new feature or significant change (not a trivial task or ongoing fix), include `.ai/skills/branch-setup/SKILL.md` before any implementation step begins.
 
 ### 5. Append Documentation Maintenance When Its Trigger Fires
 

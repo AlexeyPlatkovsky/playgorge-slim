@@ -1,0 +1,43 @@
+import { expect, test } from "@playwright/test";
+
+import { env } from "../../framework/config/env";
+import { xPage } from "../../framework/core/xPage";
+import { createFakePage, type RecordedCall } from "./helpers/fakes";
+import { isXLocator } from "../../framework/core/xLocator";
+
+class DemoPage extends xPage {
+  readonly path = "/login";
+  readonly submit = this.$("#submit");
+
+  opened = false;
+
+  isOpened(): Promise<void> {
+    this.opened = true;
+    return Promise.resolve();
+  }
+}
+
+test("xPage navigates with base url and exposes wrapped page locators @unit", async () => {
+  const calls: RecordedCall[] = [];
+  const { page, state } = createFakePage(calls);
+  const demo = new DemoPage(page);
+
+  await demo.open();
+
+  expect(state.navigatedTo).toBe(`${env.BASE_URL}/login`);
+  expect(demo.opened).toBe(true);
+  expect(isXLocator(demo.submit)).toBe(true);
+  expect(demo.submit.__meta.selector).toBe("#submit");
+  expect(calls.map((call) => ({ method: call.method, target: call.target }))).toEqual([
+    { method: "locator", target: "page" },
+    { method: "getByRole", target: "page" },
+    { method: "addLocatorHandler", target: "page" },
+    { method: "goto", target: "page" }
+  ]);
+  expect(calls[0]).toEqual({ args: ["#submit"], method: "locator", target: "page" });
+  expect(calls[3]).toEqual({
+    args: [`${env.BASE_URL}/login`],
+    method: "goto",
+    target: "page"
+  });
+});

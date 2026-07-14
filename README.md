@@ -10,7 +10,6 @@ Strict TypeScript + Playwright foundation for a Component-DSL testing framework.
 ## Bootstrap
 
 ```bash
-nvm use
 npm install
 npx playwright install --with-deps chromium
 npm install -g @playwright/cli@latest

@@ -20,11 +20,6 @@ auth.json
 # AI-generated local docs
 docs/plans/
 
-# Env and secrets
-.env
-.env.local
-.env.*.local
-
 # IDE
 .idea/
 .vscode/

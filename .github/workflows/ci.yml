@@ -1,6 +1,15 @@
 name: ci
 on:
+  workflow_dispatch:
   pull_request:
+
+# Least privilege needed to read the code and post review comments.
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -15,22 +24,33 @@ jobs:
       # reachable app, this line becomes:
       #   npx playwright install --with-deps && npx playwright test
       - run: npx playwright test --list
-  ai-review:
+
+  review:
+    # Gate every entry point to the owner. On a public repo this stops anyone
+    # else from triggering OpenCode (and burning the API key) via a comment.
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: read
     steps:
       - uses: actions/checkout@v6
-      - uses: anomalyco/opencode/github@latest
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+      - name: OpenCode review
+        uses: sst/opencode/github@latest
         with:
-          model: opencode/deepseek-v4-flash-free
+          model: opencode-go/deepseek-v4-flash-free
+          use_github_token: true
+          share: false
           prompt: |
-            Review this pull request's changed test files by following the
-            test-reviewer agent defined in this repository — AGENTS.md
-            reaches it directly or through the create-test pipeline's
-            review step. Post the reviewer's findings table and verdict
-            as a PR comment. Do not edit any files.
+            Review this pull request's changed test files. Read each changed
+            spec, page object, and component. Check every point:
+            1. Placement and structure follow the project conventions
+            2. Selectors come from page objects or components, never inline
+            3. Each assertion checks an observable result
+            4. Tests are independent (no reliance on execution order or shared state)
+            5. Waits are condition-based (no fixed sleeps)
+            6. The spec compiles without TypeScript or lint errors
+            Return a table with Status, Finding, Evidence (file and line),
+            and Required action — one row per checked point — followed by
+            a one-line verdict: approve or needs-work.
+            Post the table and verdict as a PR comment. Do not edit files.
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

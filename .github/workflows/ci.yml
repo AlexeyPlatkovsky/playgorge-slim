@@ -1,0 +1,43 @@
+name: ci
+on:
+  workflow_dispatch:
+  pull_request:
+
+# Least privilege needed to read the code and post review comments.
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      # The fixture has no running app: discovery proves the suite installs,
+      # compiles, and is collectable in a clean runner. In a project with a
+      # reachable app, this line becomes:
+      #   npx playwright install --with-deps && npx playwright test
+      - run: npx playwright test --list
+
+  review:
+    # Gate every entry point to the owner. On a public repo this stops anyone
+    # else from triggering OpenCode (and burning the API key) via a comment.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: OpenCode review
+        uses: sst/opencode/github@latest
+        with:
+          model: opencode-go/deepseek-v4-flash-free
+          prompt: |
+            Review this pull request's changed test files by following the
+            test-reviewer agent defined in this repository — AGENTS.md
+            reaches it directly or through the create-test pipeline's
+            review step. Post the reviewer's findings table and verdict
+            as a PR comment. Do not edit any files.

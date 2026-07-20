@@ -34,7 +34,7 @@ jobs:
       - name: OpenCode review
         uses: sst/opencode/github@latest
         with:
-          model: opencode-go/deepseek-v4-flash-free
+          model: opencode-go/deepseek-v4-flash
           use_github_token: true
           prompt: |
             Review this pull request's changed test files. Read each changed

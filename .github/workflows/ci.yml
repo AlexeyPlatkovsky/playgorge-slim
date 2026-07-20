@@ -1,0 +1,36 @@
+name: ci
+on:
+  pull_request:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      # The fixture has no running app: discovery proves the suite installs,
+      # compiles, and is collectable in a clean runner. In a project with a
+      # reachable app, this line becomes:
+      #   npx playwright install --with-deps && npx playwright test
+      - run: npx playwright test --list
+  ai-review:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: anomalyco/opencode/github@latest
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        with:
+          model: opencode/deepseek-v4-flash-free
+          prompt: |
+            Review this pull request's changed test files by following the
+            test-reviewer agent defined in this repository — AGENTS.md
+            reaches it directly or through the create-test pipeline's
+            review step. Post the reviewer's findings table and verdict
+            as a PR comment. Do not edit any files.

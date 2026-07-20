@@ -36,6 +36,7 @@ jobs:
         with:
           model: opencode-go/deepseek-v4-flash
           use_github_token: true
+          share: false
           prompt: |
             Review this pull request's changed test files. Read each changed
             spec, page object, and component. Check every point:
@@ -49,7 +50,7 @@ jobs:
             and Required action — one row per checked point — followed by
             a one-line verdict: approve or needs-work.
             Post the table and verdict as a PR comment. Do not edit files.
-          share: false
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

@@ -22,6 +22,7 @@ This fixture contains TypeScript and Playwright test code. Protect readable test
 - Do not report a test as passing without running it and observing the result.
 
 ## Capability Routing
-- When the user asks to create or modify a test, follow the `clarify-test-scope` skill at `instructions/skills/clarify-test-scope.md` before reading or writing any code.
+- When the user asks to create a new test, follow the create-test pipeline at `instructions/pipelines/create-test.md`, starting from step 1.
+- When the user asks to modify an existing test, follow the `clarify-test-scope` skill at `<clarify-skill-path>` before reading or writing any code.
 - After a test file has been created or modified, run the `test-reviewer` agent at `instructions/agents/test-reviewer.md` and report its verdict before declaring the work done.
 - Before adding a new skill or agent, classify it with `docs/conventions/skill-vs-agent.md`.

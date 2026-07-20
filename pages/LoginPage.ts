@@ -1,6 +1,8 @@
 import { expect } from "@playwright/test";
 
 import { SiteHeaderComponent } from "./components/SiteHeaderComponent";
+import type { xLocator } from "../framework/core/xLocator";
+import { wrapLocator } from "../framework/core/xLocator";
 import { xPage } from "../framework/core/xPage";
 
 export interface LoginCredentials {
@@ -17,6 +19,8 @@ export class LoginPage extends xPage {
   readonly header = new SiteHeaderComponent(this.$("header"));
   readonly loginButton = this.$("[data-qa='login-button']");
   readonly loginEmail = this.$("[data-qa='login-email']");
+  readonly loginError: xLocator = wrapLocator(this.page.getByText("Your email or password is incorrect!"), { selector: "Your email or password is incorrect!" });
+  readonly loginForm = this.$("[data-qa='login-form']");
   readonly loginPassword = this.$("[data-qa='login-password']");
   readonly path = "/login";
   readonly signupButton = this.$("[data-qa='signup-button']");
